@@ -177,7 +177,7 @@ while True:
         for row in results_hp:
             row_hp_new = row[1]
 
-        print row_new, row_dg_new, row_hp_new
+        print 'Pt name is : ', row_new, 'Diagnosis is :', row_dg_new, 'Hospital is :', row_hp_new
 
 
 
