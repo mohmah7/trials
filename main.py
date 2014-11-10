@@ -2,9 +2,9 @@ import MySQLdb
 
 db =MySQLdb.connect('localhost','root','','Medgulf')
 
-def add_pt_database(name,age):
+def add_pt_database(name,age,app_number):
     cursor = db.cursor()
-    sql = """INSERT INTO PTNAME (FULL_NAME, AGE) VALUES ('%s','%d')"""%(name,age)
+    sql = """INSERT INTO PTNAME (FULL_NAME, AGE, APPNUMBER) VALUES ('%s','%d','%s')"""%(name,age,app_number)
     cursor.execute(sql)
     db.commit()
 
@@ -72,15 +72,14 @@ def linking_tables(ptname_id,diagnosis_id, hospital_id):
 
 def print_screen():
         print("1- Enter 1 to enter pt name")
-        print("2- Enter 2 to enter visiting date")
-        print("3- Enter 3 to enter hospital name")
-        print("4- Enter 4 to enter diagnosis")
-        print("5- Enter 5 to print Pt information")
-        print("8- Enter 8 for exit")
+        print("5- Enter 2 to print Pt information")
+        print("8- Enter 3 for exit")
 
-
-        x= raw_input("Please enter Your Choice: ")
-        x=int(x)
+        try:
+            x= raw_input("Please enter Your Choice: ")
+            x=int(x)
+        except:
+            ValueError
         return x
 
 while True:
@@ -90,51 +89,21 @@ while True:
         pt_name = str(raw_input("Please enter Pt name:"))
         pt_age = int(raw_input("Please enter pt age: "))
         diagnosis= str(raw_input("Please enter diagnosis:"))
-        hospital_number = int(raw_input(" Enter number for hospital : \n 1- AGH KHOBAR \n 2- Dossary \n 3- Fakhry \n \
-            4- Al Salama  \n 5 - Al Yousef \n  6 - Astoon\n "))
+        app_number = str(raw_input("Please enter approval number : "))
+        hospital_number = int(raw_input(" Enter number for hospital : \n 1- AGH KHOBAR \n 2- Dossary \n 3- Fakhry \n 4- Al Salama  \n 5 - Al Yousef \n  6 - Astoon\n "))
         add_diagnosis_database(diagnosis)
-        add_pt_database(pt_name,pt_age)
+        add_pt_database(pt_name,pt_age,app_number)
         pt_number = retriev_id_ptname(pt_name)
         diagnosis_number = retrive_id_diagnosis(diagnosis)
         linking_tables(pt_number,diagnosis_number,hospital_number)
-
-        print(pt_name, pt_age)
-
-
-
-
-    if choice== 2:
-
-        db = MySQLdb.connect("localhost","root","","Medgulf" )
-
-        cursor = db.cursor()
-        name='mohamed'
-
-        sql = "SELECT id FROM ptname \
-            WHERE full_name = '%s'"%name
-        try:
-             cursor.execute(sql)
-             results = cursor.fetchall()
-             for row in results:
-                 number = row[0]
-             print number
-
-
-        except:
-             print "Error: unable to fecth data"
-
-
-
-    if choice == 3:
         hospital_name = str(raw_input("Please enter hospital name :"))
         add_hospital_database(hospital_name)
 
-    if choice == 4:
-        diagnosis_usr = str(raw_input("Please enter diagnosis:"))
-        add_diagnosis_database(diagnosis=diagnosis_usr)
 
 
-    if choice == 5:
+
+
+    if choice == 2:
         cursor=db.cursor()
         sql = "SELECT Full_name FROM PTNAME"
         cursor.execute(sql)
@@ -143,6 +112,90 @@ while True:
         for row in results_print:
             x +=1
             print  '',x,'-',row[0]
+
+        print "Please enter A to search by name"
+        print "Please enter B to search by Approval number"
+        print "Please enter C to search by diagnosis"
+        user_choice = str(raw_input("Please enter your choice A or B or C:"))
+        user_choice = user_choice.lower()
+
+        if user_choice == 'a':
+            user_choice_name = str(raw_input("Please enter patient name : "))
+            cursor=db.cursor()
+            sql = "SELECT *FROM PTNAME WHERE FULL_NAME ='%s'"%user_choice_name
+            cursor.execute(sql)
+            resutls_usr = cursor.fetchall()
+            how_many = len(resutls_usr)
+            print 'Data base has %d patient with this name'%how_many
+            for row in resutls_usr:
+                print 'Patient name is ',row[1] , 'patient Age is ',row[2], 'patient approval number is',row[3], 'visit date is ',row[4]
+                cursor=db.cursor()
+                sql = "SELECT *FROM PTNAME_DIAGNOSIS_HOSPITALNAME  WHERE PTNAME_ID ='%d'"%row[0]
+                try:
+                    cursor.execute(sql)
+                    results = cursor.fetchall()
+                    for row in results:
+                        pt_id = row[0]
+                        dg_id = row[1]
+                        hp_id = row[2]
+                    #print pt_id,dg_id,hp_id
+                except:
+                    print "Error: unable to fecth data"
+                sql = "SELECT *FROM DIAGNOSIS WHERE ID ='%d'"%dg_id
+                cursor.execute(sql)
+                results_dg = cursor.fetchall()
+
+                for row_dg in results_dg:
+                    row_dg_new = row_dg[2]
+                    print 'Diagnosis is %s'%row_dg_new
+
+                sql = "SELECT * FROM HOSPITALNAME WHERE ID ='%d'"%hp_id
+                cursor.execute(sql)
+                results_hp = cursor.fetchall()
+                for row in results_hp:
+                    row_hp_new = row[1]
+                    print 'In %s Hospital'%row_hp_new
+
+        if user_choice == 'b':
+            user_choice_name = str(raw_input("Please enter patient approval number : "))
+            cursor=db.cursor()
+            sql = "SELECT *FROM PTNAME WHERE APPNUMBER ='%s'"%user_choice_name
+            cursor.execute(sql)
+            resutls_usr = cursor.fetchall()
+            how_many = len(resutls_usr)
+            print 'Data base has %d patient with this Approval number'%how_many
+            for row in resutls_usr:
+                print 'Patient name is ',row[1] , 'patient Age is ',row[2], 'patient approval number is',row[3], 'visit date is ',row[4]
+                cursor=db.cursor()
+                sql = "SELECT *FROM PTNAME_DIAGNOSIS_HOSPITALNAME  WHERE PTNAME_ID ='%d'"%row[0]
+                try:
+                    cursor.execute(sql)
+                    results = cursor.fetchall()
+                    for row in results:
+                        pt_id = row[0]
+                        dg_id = row[1]
+                        hp_id = row[2]
+                    #print pt_id,dg_id,hp_id
+                except:
+                    print "Error: unable to fecth data"
+                sql = "SELECT *FROM DIAGNOSIS WHERE ID ='%d'"%dg_id
+                cursor.execute(sql)
+                results_dg = cursor.fetchall()
+
+                for row_dg in results_dg:
+                    row_dg_new = row_dg[2]
+                    print 'Diagnosis is %s'%row_dg_new
+
+                sql = "SELECT * FROM HOSPITALNAME WHERE ID ='%d'"%hp_id
+                cursor.execute(sql)
+                results_hp = cursor.fetchall()
+                for row in results_hp:
+                    row_hp_new = row[1]
+                    print 'In %s Hospital'%row_hp_new
+
+
+
+
         usr_select = int(raw_input("Please enter Pt number  from 1 to %s to get his/her data \n"%x))
         cursor=db.cursor()
         sql = "SELECT *FROM PTNAME_DIAGNOSIS_HOSPITALNAME  WHERE PTNAME_ID ='%d'"%usr_select
@@ -153,7 +206,7 @@ while True:
                  pt_id = row[0]
                  dg_id = row[1]
                  hp_id = row[2]
-             print pt_id,dg_id,hp_id
+             #print pt_id,dg_id,hp_id
         except:
              print "Error: unable to fecth data"
 
@@ -177,13 +230,16 @@ while True:
         for row in results_hp:
             row_hp_new = row[1]
 
-        print 'Pt name is : ', row_new, 'Diagnosis is :', row_dg_new, 'Hospital is :', row_hp_new
+        print 'Pt name is : ', row_new
+        print 'Diagnosis is :', row_dg_new
+        print 'Hospital is :', row_hp_new
+        print '\n\n'
 
 
 
 
 
-    if choice == 8:
+    if choice == 3:
         db.close()
         exit()
 
