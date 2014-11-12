@@ -10,6 +10,18 @@ def insert(tablename,*columns):
     trial = "INSERT INTO %s (%s)"%(tablename,x_string)
     return trial
 
+def select(arg,tablename, *coloums):
+    y=[]
+    for item in coloums:
+        y.append(item)
+    y_string = ','.join(y)
+    print y_string
+    trilas = "SELECT %s From %s Where %s ="%(arg,tablename,y_string)
+    print trilas
+    return y_string
+
+select('*','ptname','Full_name')
+
 def add_pt_database(name,age,app_number):
     cursor = db.cursor()
     #function that calls insert function
