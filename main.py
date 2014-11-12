@@ -2,21 +2,32 @@ import MySQLdb
 
 db =MySQLdb.connect('localhost','root','','Medgulf')
 
+def insert(tablename,*columns):
+    x =[]
+    for item in columns:
+        x.append(item)
+    x_string =','.join(x)
+    trial = "INSERT INTO %s (%s)"%(tablename,x_string)
+    return trial
+
 def add_pt_database(name,age,app_number):
     cursor = db.cursor()
-    sql = """INSERT INTO PTNAME (FULL_NAME, AGE, APPNUMBER) VALUES ('%s','%d','%s')"""%(name,age,app_number)
+    #function that calls insert function
+    sql = insert('ptname','Full_name','age','APPNUMBER')+""" VALUES ('%s','%d','%s')"""%(name,age,app_number)
     cursor.execute(sql)
     db.commit()
 
 def add_diagnosis_database(diagnosis, icd = ""):
     cursor = db.cursor()
-    sql = """INSERT INTO DIAGNOSIS (ICDCODE,DIAGNOSIS) VALUES ('%s','%s')"""%(icd,diagnosis)
+    #function that calls another function
+    sql = insert('DIAGNOSIS','ICDCODE','DIAGNOSIS') +"""VALUES ('%s','%s')"""%(icd,diagnosis)
     cursor.execute(sql)
     db.commit()
 
 def add_hospital_database(name):
     cursor = db.cursor()
-    sql = """INSERT INTO HOSPITALNAME (NAME) VALUES ('%s')"""%(name)
+
+    sql = insert('HOSPITALNAME','NAME') +"""VALUES ('%s')"""%(name)
     cursor.execute(sql)
     db.commit()
 
@@ -28,9 +39,7 @@ def retriev_id_ptname(name):
         results = cursor.fetchall()
         for row in results:
             number = row[0]
-        print number
-
-
+        #print number
     except:
         print "Error: unable to fetch data"
     return number
@@ -44,7 +53,7 @@ def retrive_id_diagnosis(name):
         results = cursor.fetchall()
         for row in results:
             number = row[0]
-        print number
+        #print number
     except:
         print "Error: unable to fecth data"
     return number
@@ -64,8 +73,8 @@ def retrive_id_ptname(name):
 
 def linking_tables(ptname_id,diagnosis_id, hospital_id):
     cursor=db.cursor()
-    sql = "INSERT INTO PTNAME_DIAGNOSIS_HOSPITALNAME (PTNAME_id,DIAGNOSIS_id, HOSPITALNAME_id) VALUES \
-        ('%d','%d','%d')"%(ptname_id,diagnosis_id, hospital_id)
+
+    sql = insert('PTNAME_DIAGNOSIS_HOSPITALNAME','PTNAME_id','DIAGNOSIS_id','HOSPITALNAME_id')+"VALUES ('%d','%d','%d')"%(ptname_id,diagnosis_id, hospital_id)
     cursor.execute(sql)
     db.commit()
 
@@ -196,7 +205,7 @@ while True:
 
 
 
-        usr_select = int(raw_input("Please enter Pt number  from 1 to %s to get his/her data \n"%x))
+        """usr_select = int(raw_input("Please enter Pt number  from 1 to %s to get his/her data \n"%x))
         cursor=db.cursor()
         sql = "SELECT *FROM PTNAME_DIAGNOSIS_HOSPITALNAME  WHERE PTNAME_ID ='%d'"%usr_select
         try:
@@ -233,7 +242,7 @@ while True:
         print 'Pt name is : ', row_new
         print 'Diagnosis is :', row_dg_new
         print 'Hospital is :', row_hp_new
-        print '\n\n'
+        print '\n\n'"""
 
 
 
